@@ -5,7 +5,7 @@
     <h1>API Proxy Stuff</h1>
     <form action="{% url 'api_proxy:data' %}" method="POST">
         <div class="form-row">
-            <input type="text" class="form-control col-8" name="api-url" value="http://data.coding.kitchen/api/companies/1">
+            <input type="text" class="form-control col-8" name="api-url" value="http://data.coding.kitchen/api/cities/1">
             <button class="btn btn-primary ml-2">Get</button>
             <i class="fa fa-spinner fa-spin call"></i>
             {% csrf_token %}
@@ -36,7 +36,7 @@
         /////////// CODING KITCHEN API
 
 
-        makeApiCall(findProfitableCompanies);
+        makeApiCall(findCapitals);
     });
 
 </script> {% endblock %}

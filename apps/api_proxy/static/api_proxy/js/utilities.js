@@ -18,5 +18,5 @@ function makeApiCall(processData) {
 }
 
 function createElement(tag) {
-    return $("<div></div>");
+    return $("<"+tag+"></"+tag+">");
 }

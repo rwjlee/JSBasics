@@ -1,0 +1,35 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>ChannelOne</title>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="{% static 'api_proxy/lib/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'api_proxy/lib/font-awesome.min.css' %}">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{% static 'api_proxy/css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'api_proxy/css/default.css' %}">
+
+
+</head>
+
+<body>
+    {% block body %} {% endblock %}
+
+
+    <script src="{% static 'api_proxy/lib/jquery-3.2.1.min.js' %}"></script>
+    <script src="{% static 'api_proxy/lib/popper.min.js' %}"></script>
+    <script src="{% static 'api_proxy/lib/bootstrap.min.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
+    <script src="{% static 'api_proxy/js/utilities.js' %}"></script>
+
+    {% block scripts %} {% endblock %}
+</body>
+
+</html>

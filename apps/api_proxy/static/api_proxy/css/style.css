@@ -1,0 +1,14 @@
+.fa {
+    font-size: 2.2em;
+    margin-left: 10px;
+}
+
+.results {
+    overflow: scroll;
+    height: calc(100vh - 130px);
+    border: 1px solid #eee;
+}
+
+.call {
+    display: none;
+}

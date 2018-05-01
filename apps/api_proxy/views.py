@@ -15,3 +15,7 @@ def data(request):
             return JsonResponse({'error': 'Request failed'})
 
     return JsonResponse({'error': 'GET request not allowed'})
+
+def demo(request):
+
+    return render(request, 'api_proxy/demo.html')

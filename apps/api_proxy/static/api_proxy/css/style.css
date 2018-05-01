@@ -12,3 +12,25 @@
 .call {
     display: none;
 }
+
+.include {
+    font-size: 2.5em;
+    color: red;
+}
+
+.exclude {
+    color: green;
+}
+
+.box {
+    height: 40px;
+    background-color: purple;
+    margin: 10px 0;
+    border-radius: 5px;
+    color: white;
+
+}
+
+.debug, .debug * {
+    border: 1px dotted red;
+}

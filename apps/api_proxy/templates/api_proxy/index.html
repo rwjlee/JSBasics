@@ -5,7 +5,7 @@
     <h1>API Proxy Stuff</h1>
     <form action="{% url 'api_proxy:data' %}" method="POST">
         <div class="form-row">
-            <input type="text" class="form-control col-8" name="api-url" value="http://data.coding.kitchen/api/cities/1">
+            <input type="text" class="form-control col-8" name="api-url" value="http://data.coding.kitchen/api/person/1">
             <button class="btn btn-primary ml-2">Get</button>
             <i class="fa fa-spinner fa-spin call"></i>
             {% csrf_token %}
@@ -26,17 +26,187 @@
         /////////// CODING KITCHEN API
         
         let findCapitals = function (response) {
+            for (let index in response) {
+                let city = response[index];
+                
+                let cityDiv = createElement("div");
 
+                let cityA = createElement("a");
+                cityA.attr("href", city.api);
+                cityA.text(city.name)
+
+                cityDiv.append(cityA);
+                
+                $(".scroller").append(cityDiv);
+                
+        
+
+                if (city.is_capital) {
+                    cityDiv.addClass("bg-danger my-1 border col-12")
+                    cityA.addClass("include");
+                } else {
+                    cityDiv.addClass("bg-primary my-1 border col-12")
+                    cityA.addClass("exclude");
+                }
+            }
         }
         
         let findProfitableCompanies = function (response) {
+            for (let index in response) {
+                let company = response[index];
+                let companyDiv = createElement("div");
+                companyDiv.text(company.name + ": " + company.net_income);
+                
 
+                if (company.net_income > 0) {
+                    $(".scroller").append(companyDiv);
+                    companyDiv.addClass("bg-primary border col-12")
+                }
+            }
+
+        }
+
+        let displayCompany = function (response) {
+            let company = response;
+            console.log(company['name']);
+            let companySpan = createElement("div");
+            companySpan.addClass("row");
+            $(".scroller").append(companySpan);
+
+            let divList = ['name', 'industry', 'symbol', 'api'];
+
+            for (let index in divList) {
+                let key = divList[index];
+                console.log(company[key]);
+                let keyDiv = createElement("div");
+                // $(".scroller").append(keyDiv);
+                keyDiv.addClass("bg-primary border col-3");
+            
+                companySpan.append(keyDiv);
+
+                if (key == 'api') {
+                    let urlA = createElement("a");
+                    urlA.attr("href", company[key]);
+                    urlA.text(company[key]);
+                    keyDiv.append(urlA);
+                } else {
+                    keyDiv.text(company[key]);
+                }
+            }
+        }
+
+        let showPeople = function(response) {
+            for (let index in response) {
+                let person = response[index];
+                let personDiv = createElement("div")
+                $(".scroller").append(personDiv);
+                
+                let personA = createElement("a");
+                personA.attr("href", person.api);
+                personA.text(person.first + " " + person.last);
+                personA.addClass("text-light");
+
+                personDiv.append(personA);
+
+                if (person.gender == 'F') {
+                    personDiv.addClass("bg-danger border col-12")
+                } else {
+                    personDiv.addClass("bg-primary border col-12")
+                }
+
+            }
+        }
+
+        let showState = function(response) {
+            let state = response;
+            console.log(state['name']);
+            let stateSpan = createElement("div");
+            stateSpan.addClass("row");
+            $(".scroller").append(stateSpan);
+
+            let divList = ['name', 'abbreviation', 'cities'];
+
+            for (let index in divList) {
+                let key = divList[index];
+                console.log(state[key]);
+                let keyDiv = createElement("div");
+
+                keyDiv.addClass("bg-primary text-light col-4");
+            
+                stateSpan.append(keyDiv);
+
+                if (key == 'cities') {
+                    let ccount = state[key].length;
+                    keyDiv.text(ccount);
+                } else {
+                    keyDiv.text(state[key]);
+                }
+            }
+        
+        }
+
+
+        let showPerson = function(response) {
+            let person = response;
+            let personDiv = createElement("div")
+            let nameDiv = createElement("div")
+            nameDiv.text(person.first + " " + person.last);
+            nameDiv.click(function(event) {
+                $(this).next().slideToggle(1000);
+            });
+            nameDiv.attr("contenteditable", true);
+            nameDiv.keypress(function(event) {
+                if (event.keyCode == 13) {
+                    event.preventDefault();
+                    $(this).blur();
+                }
+            });
+
+            personDiv.append(nameDiv);
+
+            $(".scroller").append(personDiv);
+
+            let secondDiv = createElement("div");
+
+            personDiv.append(secondDiv);
+            
+            let genderDiv = createElement("div");
+            genderDiv.text(person["gender"]);
+
+
+            secondDiv.append(genderDiv);
+
+            let currentDiv = createElement("div");
+            current = person.current_address;
+            currentDiv.text(current.street + " " + current.city + " " + current.state + " " + current.zip);
+
+            secondDiv.append(currentDiv);
+
+            let pastDiv = createElement("div");
+            let past = person.past_addresses;
+            
+            for (let index in past) {
+                let pastAdd = past[index];
+                console.log(pastAdd.street);
+                let pastAddDiv = createElement("div");
+                pastAddDiv.text(pastAdd.street + " " + pastAdd.city + " " + pastAdd.state + " " + pastAdd.zip);
+                pastDiv.append(pastAddDiv);
+                pastAddDiv.addClass("col-10 text-align-right small");
+            }
+
+            secondDiv.append(pastDiv);
+
+            if (person.gender=='F') {
+                personDiv.addClass("bg-danger col-12");
+            } else {
+                personDiv.addClass("bg-primary col-12");
+            }
         }
 
         /////////// CODING KITCHEN API
 
 
-        makeApiCall(findCapitals);
+        makeApiCall(showPerson);
     });
 
 </script> {% endblock %}

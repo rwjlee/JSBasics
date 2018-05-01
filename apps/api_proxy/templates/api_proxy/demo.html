@@ -1,0 +1,76 @@
+{% extends 'api_proxy/base.html' %} {% block body %}
+<div class="row">
+    <div class="col-12" id="div1" bla="test1"></div>
+    <div class="col-12" id="div2" bla="test2"></div>
+    <div class="col-12" id="div3" contenteditable="true"></div>
+    <button class="btn btn-primary">Hello Jon</button>
+</div>
+<form action="https://google.com/" id="form1" method="POST">
+    <div class="form-group">
+        <input type="text" placeholder="input 1" name="input1" class="form-control">
+    </div>
+    <div class="form-group">
+        <input type="text" placeholder="input 2" name="input2" class="form-control">
+    </div>
+    <div class="form-group">
+        <input type="text" placeholder="input 3" name="input3" class="form-control">
+    </div>
+    <div class="form-group">
+        <input type="text" placeholder="input 4" name="input4" class="form-control">
+    </div>
+    <input type="submit" class="btn btn-primary">
+</form>
+{% endblock %} 
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        $(".col-12").addClass("box");
+        let containerDiv = createElement("div");
+        containerDiv.addClass("container");
+        $(".row").appendTo(containerDiv);
+        // $("body").append(containerDiv);
+        containerDiv.appendTo("body");
+        
+        $("#div1").mouseenter(function(event) {
+            console.log(event);
+            console.log($(this).width());
+            if (event.clientX > $(this).width()/2) {
+                $(this).fadeOut(2000, function() {
+                    $(this).fadeIn(1000, function() {
+                        
+                    });
+                });
+            }
+            
+        });
+
+        $("#div2").mouseover(function(event) {
+            $(this).siblings().slideToggle(2000);
+        })
+
+        $("#div3").keypress(function(event) {
+            if (event.keyCode === 13) {
+                // event.preventDefault();
+                $(this).blur();
+                $("div[bla=test1]").fadeToggle(1000);
+            }
+        });
+        
+        $("#form1 > .btn").click(function(event) {
+            let dict={};
+            event.preventDefault();
+            let array = ["input1","input2","input3","input4"]
+            for (let i=0 ; i<array.length ; i++) {
+                
+                
+                let val = $(`input[name=${array[i]}]`).val();
+                console.log(val);
+                dict[array[i]] = val;
+                
+            }
+            console.log(dict);
+        });
+        
+    });
+</script> {% endblock %}

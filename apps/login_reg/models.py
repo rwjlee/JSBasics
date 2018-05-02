@@ -11,8 +11,8 @@ class User(models.Model):
 
 class Bill(models.Model):
     desc = models.TextField(max_length=128)
-    amt = models.FloatField()
-    user = models.ForeignKey(User, related_name='has_bills', on_delete=models.CASCADE)
+    amount = models.FloatField()
+    user = models.ForeignKey(User, related_name='has_bills', on_delete=models.CASCADE, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

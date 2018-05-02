@@ -3,11 +3,10 @@
 {% block body %}
 <h1><a href="">Bill Tracker</a></h1>
 
-<form action="#" method='POST' id="form1">
-    {% csrf_token %}
+<form action="{% url 'api_proxy:authenticate_bill' %}" method='POST' id="form1">
     <div class="form-group row py-2">
         
-        <input type="text" name="html_description" class="col-6 ml-3 rounded" placeholder="Description">
+        <input type="text" name="html_desc" class="col-6 ml-3 rounded" placeholder="Description">
         <input type="text" name="html_amount" class="col-2 ml-2 rounded" placeholder="Amount">
         <button type="submit" class="btn btn-primary ml-2">Add Bill</button>
     </div>
@@ -15,9 +14,12 @@
 <hr>
 
 <div class="row copy-me my-1">
-    <div class="col-6 ml-3 rounded"></div>
-    <div class="col-2 ml-2 rounded"></div>
-    <button type="submit" class="btn btn-danger ml-2">Delete</button>
+    <div class="col-6 ml-3 rounded" name="new_desc"></div>
+    <div class="col-2 ml-2 rounded" name="new_amount"></div>
+    <form action="{% url 'api_proxy:authenticate_bill' %}" method='POST' id="formDelete">
+        <input type="hidden" class="hiddenBill" name="bill_id">
+        <button type="submit" class="btn btn-danger ml-2">Delete</button>
+    </form> 
 </div>
 
 <div class="allbills">
@@ -37,45 +39,72 @@ $(document).ready(function () {
         event.preventDefault();
 
         $.ajax({
-            type: $("this").
-            
-        })
-        let value = $("input[name=html_amount]").val()
-        let key = $("input[name=html_description").val()
+            beforeSend: setCsrfToken,
+            type: $("#form1").attr("method"),
+            url: $("#form1").attr("action"),
+            data: {
+                "html_desc": $("input[name=html_desc]").val(),
+                "html_amount": $("input[name=html_amount").val(),
+            },
+            success: function(response) {
+                console.log(response);
+                let key = response['desc'];
+                let value = response['amount'];
+                let bill = $(".copy-me").clone();
+                bill.removeClass("copy-me");
+                htmlDesc = bill.find(".col-6")
+                htmlDesc.text(key);
+                htmlAmt = bill.find(".col-2")
+                htmlAmt.text(value);
+                bill.find("")
+                
+                $(".allbills").append(bill);
+                
+                // bill.find(".col-6").attr("contenteditable", true);
+                // bill.find(".col-2").attr("contenteditable", true);
 
-        $(this).siblings().val("");
 
-        if (Number(value)) {
+                // bill.find(".rounded").keypress(function(event) {
+                //     if (event.keyCode === 13) {
+                //         event.preventDefault();
+                //         $(this).blur();
+                        
+                //         if(isNaN(Number(bill.find(".col-2").text()))) {
+                //             bill.find(".col-2").text(0);
+                //         }
+                //     }
+                // });
 
-            let bill = $(".copy-me").clone();
-            bill.removeClass("copy-me");
-            htmlDesc = bill.find(".col-6")
-            htmlDesc.text(key);
-            htmlAmt = bill.find(".col-2")
-            htmlAmt.text(value);
+                bill.find(".btn").click(function(event) {
+                    $(this).parent().remove();
+                    $.ajax({
+                        beforeSend: setCsrfToken,
+                        type: $(this).siblings().attr("method"),
+                        url: $(this).siblings().attr("action"),
+                        data: {
+                            "bill_id": $("input[name=bill_id]").val(),
+                        },
+                        success: function(response) {
+                        
+                        }
+                    });
+                })
 
-            bill.find(".col-6").attr("contenteditable", true);
-            bill.find(".col-2").attr("contenteditable", true);
+            },
+            error: function(response) {
+                console.log("error in ajax");
+                console.log(response);
+            }
+        });   
+        // })
+        // let value = $("input[name=html_amount]").val()
+        // let key = $("input[name=html_description").val()
 
-            
-            bill.find(".rounded").keypress(function(event) {
-                if (event.keyCode === 13) {
-                    event.preventDefault();
-                    $(this).blur();
-                    
-                    if(isNaN(Number(bill.find(".col-2").text()))) {
-                        bill.find(".col-2").text(0);
-                    }
-                }
-            });
+        // $(this).siblings().val("");
 
-            bill.find(".btn").click(function(event) {
-                $(this).parent().remove();
-            })
+        // if (Number(value)) {
 
-            $(".allbills").append(bill);
-            
-        }
+    //     }
     });
 });
 </script> 

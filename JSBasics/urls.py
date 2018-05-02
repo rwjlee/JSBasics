@@ -19,4 +19,5 @@ from django.urls import path, include
 urlpatterns = [
     path('', include('apps.api_proxy.urls', namespace='api_proxy')),
     path('admin/', admin.site.urls),
+    path('login_reg/', include('apps.login_reg.urls', namespace='login_reg'))
 ]

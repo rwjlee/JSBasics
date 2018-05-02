@@ -34,3 +34,7 @@
 .debug, .debug * {
     border: 1px dotted red;
 }
+
+.copy-me {
+    display: none;
+}

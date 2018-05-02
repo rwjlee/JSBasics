@@ -19,3 +19,6 @@ def data(request):
 def demo(request):
 
     return render(request, 'api_proxy/demo.html')
+
+def bill(request):
+    return render(request, 'api_proxy/bill.html')

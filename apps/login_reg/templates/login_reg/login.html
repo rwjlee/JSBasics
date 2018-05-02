@@ -1,0 +1,52 @@
+{% extends 'api_proxy/base.html' %} {% block body %}
+
+<div class="card my-4 col-6 offset-3 p-5">
+    <h3 class="text-center">Login</h3>
+    <form method="POST" action="{% url 'login_reg:authenticate_ajax' auth_for='login' %}" id="login-form">
+        <div class="form-group">
+            <label for="inputEmail1">Email</label>
+            <input type="email" class="form-control" id="inputEmail1" aria-describedby="emailHelp" placeholder="Enter Email" name="html_email"
+                value="">
+        </div>
+        <div class="form-group">
+            <label for="inputPassword1">Password</label>
+            <input type="password" class="form-control" id="inputPassword1" placeholder="Enter Password" name="html_password" value="">
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+        <i class="fa fa-spinner ml-3 fa-spin" id="spinner" style="display: none"></i>
+    </form>
+    <div class="my-3 messages">
+        
+    </div>
+</div>
+
+
+{% endblock %} {% block scripts %}
+<script>
+
+    $(document).ready(function () {
+        $("button").click(function(event) {
+            event.preventDefault();
+            $(".messages").children().remove();
+            $.ajax({
+                beforeSend: setCsrfToken,
+                type: $("form").attr("method"),
+                url: $("form").attr("action"),
+                data: {
+                    "html_email": $("input[name=html_email]").val(),
+                    "html_password": encryptPassword($("input[name=html_password]").val()),
+                },
+                success: function(response) {
+                    console.log(response);
+                    window.location = response.url;
+                },
+                error: function(response) {
+                    // console.log(response);
+                    displayErrors($('.messages'), response.responseJSON.errors)
+                }
+            });
+        });
+    });
+
+
+</script> {% endblock %}

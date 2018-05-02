@@ -27,16 +27,25 @@ def bill(request):
 
     return render(request, 'api_proxy/bill.html')
 
-def authenticate_bill(request):
+def authenticate_bill(request, auth_for):
     if request.method == "POST":
         success = False
         bill = None
-        success, bill = create_bill(request)
+
+        if auth_for == 'create':
+            success, bill = create_bill(request)
+
+        if auth_for == 'update':
+            success, bill = update_bill(request)
+
+        if auth_for == 'delete':
+            return delete_bill(request)
 
         if success:
             return JsonResponse({
                 "desc": bill.desc,
                 "amount": bill.amount,
+                "bill_id": bill.id,
                 })
 
         errors= [str(message) for message in messages.get_messages(request)]
@@ -48,48 +57,64 @@ def authenticate_bill(request):
 
 def delete_bill(request):
     bill_id = request.POST['bill_id']
-    
+    print("========{}=========".format(bill_id))
     try:
         bill = Bill.objects.get(id = bill_id)
         bill.delete()
         return JsonResponse({"message": "deleted"})
 
     except:
-        pass
+        raise
 
     return JsonResponse({"message": "cannot be deleted"})
 
 def update_bill(request):
     desc = request.POST['new_desc']
     amount = request.POST['new_amount']
-    user_id = request.session['user_id']
     bill_id = request.session['bill_id']
 
+    bill = None
+    try:
+        bill = Bill.objects.get(id = bill_id)
+    except:
+        messages.error(request, 'Cannot get bill')
+        return False, None
+           
+    if check_values(request, desc, amount):
+        bill.desc = desc
+        bill.amount = amount
+        return True, bill
 
-    return JsonResponse({"desc": desc, "amount": amount})
+    return False, bill
 
 def create_bill(request):
     desc = request.POST['html_desc']
     amount = request.POST['html_amount']
     user_id = request.session['user_id']
     
-    is_valid = len(desc) > 0
-
-    try:
-        int_amount = float(amount)
-        is_valid = is_valid and len(amount)>0
-        print("in good try")
-    except:
-        is_valid = False
-        messages.error(request, 'Amount need to be a number')
-        return False, None
-
-    if is_valid:
+    if check_values(request, desc, amount):
         try:
             bill = Bill.objects.create(desc = desc, amount = amount, user_id = user_id)
             return True, bill
-
         except:
             messages.error(request, "Bad Bill")
 
     return False, None
+
+def check_values(request, desc, amount):
+    if len(desc) < 1:
+        messages.error(request, 'description cannot be blank')
+        return False
+
+    try:
+        float_amount = float(amount)
+        if len(amount)>0:
+            return True
+        else:
+            messages.error(request, 'amount cannot be blank')
+            return False
+    except:
+        messages.error(request, 'Amount need to be a number')
+        
+    return False
+    

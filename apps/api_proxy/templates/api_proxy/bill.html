@@ -3,7 +3,7 @@
 {% block body %}
 <h1><a href="">Bill Tracker</a></h1>
 
-<form action="{% url 'api_proxy:authenticate_bill' %}" method='POST' id="form1">
+<form action="{% url 'api_proxy:authenticate_bill' auth_for='create' %}" method='POST' id="form1">
     <div class="form-group row py-2">
         
         <input type="text" name="html_desc" class="col-6 ml-3 rounded" placeholder="Description">
@@ -13,11 +13,11 @@
 </form>
 <hr>
 
-<div class="row copy-me my-1">
+<div class="row copy-me my-1" id="onerow">
     <div class="col-6 ml-3 rounded" name="new_desc"></div>
     <div class="col-2 ml-2 rounded" name="new_amount"></div>
-    <form action="{% url 'api_proxy:authenticate_bill' %}" method='POST' id="formDelete">
-        <input type="hidden" class="hiddenBill" name="bill_id">
+    <form action="{% url 'api_proxy:authenticate_bill' auth_for='delete' %}" method='POST' id="formDelete">
+        <input type="hidden" class="hiddenBill" name="bill_id" value="bill">
         <button type="submit" class="btn btn-danger ml-2">Delete</button>
     </form> 
 </div>
@@ -50,42 +50,51 @@ $(document).ready(function () {
                 console.log(response);
                 let key = response['desc'];
                 let value = response['amount'];
+                let billID = response['bill_id'];
                 let bill = $(".copy-me").clone();
                 bill.removeClass("copy-me");
                 htmlDesc = bill.find(".col-6")
                 htmlDesc.text(key);
                 htmlAmt = bill.find(".col-2")
                 htmlAmt.text(value);
-                bill.find("")
+                htmlID = bill.find(".hiddenBill");
+                console.log(htmlID);
+                htmlID.val(billID);
                 
                 $(".allbills").append(bill);
                 
-                // bill.find(".col-6").attr("contenteditable", true);
-                // bill.find(".col-2").attr("contenteditable", true);
+                bill.find(".col-6").attr("contenteditable", true);
+                bill.find(".col-2").attr("contenteditable", true);
 
 
-                // bill.find(".rounded").keypress(function(event) {
-                //     if (event.keyCode === 13) {
-                //         event.preventDefault();
-                //         $(this).blur();
-                        
-                //         if(isNaN(Number(bill.find(".col-2").text()))) {
-                //             bill.find(".col-2").text(0);
-                //         }
-                //     }
-                // });
+                bill.find(".rounded").keypress(function(event) {
+                    if (event.keyCode === 13) {
+                        event.preventDefault();
+                        $(this).blur();
+                        // 
+                        $.ajax({
+                           
+                        })
+                    }
+                });
 
                 bill.find(".btn").click(function(event) {
-                    $(this).parent().remove();
+                    event.preventDefault();
+
                     $.ajax({
                         beforeSend: setCsrfToken,
-                        type: $(this).siblings().attr("method"),
-                        url: $(this).siblings().attr("action"),
+                        type: $(this).parent().attr("method"),
+                        url: $(this).parent().attr("action"),
                         data: {
-                            "bill_id": $("input[name=bill_id]").val(),
+                            "bill_id": $(this).siblings().val(),
                         },
                         success: function(response) {
-                        
+                            console.log(response);
+                            bill.find("#formDelete").addClass("copy-me");
+                            bill.find("#onerow").addClass("copy-me");
+                        },
+                        error: function(response) {
+                            console.log(response);
                         }
                     });
                 })
@@ -96,15 +105,6 @@ $(document).ready(function () {
                 console.log(response);
             }
         });   
-        // })
-        // let value = $("input[name=html_amount]").val()
-        // let key = $("input[name=html_description").val()
-
-        // $(this).siblings().val("");
-
-        // if (Number(value)) {
-
-    //     }
     });
 });
 </script> 

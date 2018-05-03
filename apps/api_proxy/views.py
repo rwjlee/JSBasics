@@ -4,7 +4,6 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from apps.login_reg.models import User, Bill
 
-
 def index(request):
     return render(request, 'api_proxy/index.html')
 
@@ -27,6 +26,16 @@ def bill(request):
 
     return render(request, 'api_proxy/bill.html')
 
+def get_bill(request):
+    if 'user_id' not in request.session:
+        return redirect('login_reg:login')
+
+    user_id = request.session['user_id']
+    bills = Bill.objects.filter(user_id = user_id).order_by('-id')
+    bill_list = [{"bill_id": bill.id, "desc": bill.desc, "amount": bill.amount} for bill in bills]
+
+    return JsonResponse({"bills": bill_list})
+
 def authenticate_bill(request, auth_for):
     if request.method == "POST":
         success = False
@@ -41,12 +50,12 @@ def authenticate_bill(request, auth_for):
         if auth_for == 'delete':
             return delete_bill(request)
 
-        if success:
+        if bill:
             return JsonResponse({
                 "desc": bill.desc,
                 "amount": bill.amount,
                 "bill_id": bill.id,
-                })
+            })
 
         errors= [str(message) for message in messages.get_messages(request)]
 
@@ -57,7 +66,6 @@ def authenticate_bill(request, auth_for):
 
 def delete_bill(request):
     bill_id = request.POST['bill_id']
-    print("========{}=========".format(bill_id))
     try:
         bill = Bill.objects.get(id = bill_id)
         bill.delete()
@@ -71,8 +79,11 @@ def delete_bill(request):
 def update_bill(request):
     desc = request.POST['new_desc']
     amount = request.POST['new_amount']
-    bill_id = request.session['bill_id']
-
+    bill_id = request.POST['bill_id']
+    print("==========amount{}=========".format(amount))
+    print("==========desc{}=========".format(desc))
+    print("==========bill_id{}=========".format(bill_id))
+    
     bill = None
     try:
         bill = Bill.objects.get(id = bill_id)
@@ -83,6 +94,7 @@ def update_bill(request):
     if check_values(request, desc, amount):
         bill.desc = desc
         bill.amount = amount
+        bill.save()
         return True, bill
 
     return False, bill

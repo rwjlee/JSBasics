@@ -13,7 +13,7 @@
 </form>
 <hr>
 
-<div class="row copy-me my-1" id="onerow">
+<div class="row copy-me my-1">
     <div class="col-6 ml-3 rounded" name="new_desc"></div>
     <div class="col-2 ml-2 rounded" name="new_amount"></div>
     <form action="{% url 'api_proxy:authenticate_bill' auth_for='delete' %}" method='POST' id="formDelete">
@@ -32,8 +32,93 @@
 {% block scripts %}
 <script>
 $(document).ready(function () {
-    
-    console.log("Bill basic");
+
+    console.log("loading");
+
+    let populate = function(response) {
+        let key = response['desc'];
+        let value = response['amount'];
+        let billID = response['bill_id'];
+        let bill = $(".copy-me").clone();
+        bill.removeClass("copy-me");
+        htmlDesc = bill.find(".col-6")
+        htmlDesc.text(key);
+        htmlAmt = bill.find(".col-2")
+        htmlAmt.text(value);
+        htmlID = bill.find(".hiddenBill");
+        htmlID.val(billID);
+        
+        $(".allbills").append(bill);
+        
+        bill.find(".col-6").attr("contenteditable", true);
+        bill.find(".col-2").attr("contenteditable", true);
+
+        bill.find(".btn").click(function(event) {
+            event.preventDefault();
+
+            $.ajax({
+                beforeSend: setCsrfToken,
+                type: $(this).parent().attr("method"),
+                url: $(this).parent().attr("action"),
+                data: {
+                    "bill_id": $(this).siblings().val(),
+                },
+                success: function(response) {
+                    bill.remove();
+                },
+                error: function(response) {
+                    console.log(response);
+                }
+            });
+        })
+
+        bill.find('.rounded').keypress(function(event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                $(this).blur();
+                new_desc = bill.find('.col-6').text();
+                new_amt = bill.find('.col-2').text();
+                
+                $.ajax({
+                    beforeSend: setCsrfToken,
+                    type: "POST",
+                    url: "{% url 'api_proxy:authenticate_bill' auth_for='update' %}",                 
+                    data: {
+                        "bill_id": bill.find("input[name=bill_id]").val(),
+                        "new_desc": new_desc,
+                        "new_amount": new_amt,
+                    },
+                    success: function(response) {
+                        bill.find(".col-6").text(response['desc'])
+                        bill.find(".col-2").text(response['amount'])
+                    },
+                    error: function(response) {
+                        console.log(response);
+                    },   
+                })
+            }
+        });           
+    }
+
+    $.ajax({
+        type: "GET",
+        url: "{% url 'api_proxy:get_bill' %}",
+        data: {
+
+        },
+        success: function (response) {
+            console.log(response['bills']);
+            let bills = response['bills'];
+            for (let i=0; i<bills.length; i++) {
+                let oldBill = bills[i]
+                populate(oldBill)
+            }
+        },
+        error: function(response) {
+            console.log(response);
+        }
+    });
+
 
     $("#form1 > .form-group > .btn").click(function(event) {
         event.preventDefault();
@@ -47,58 +132,7 @@ $(document).ready(function () {
                 "html_amount": $("input[name=html_amount").val(),
             },
             success: function(response) {
-                console.log(response);
-                let key = response['desc'];
-                let value = response['amount'];
-                let billID = response['bill_id'];
-                let bill = $(".copy-me").clone();
-                bill.removeClass("copy-me");
-                htmlDesc = bill.find(".col-6")
-                htmlDesc.text(key);
-                htmlAmt = bill.find(".col-2")
-                htmlAmt.text(value);
-                htmlID = bill.find(".hiddenBill");
-                console.log(htmlID);
-                htmlID.val(billID);
-                
-                $(".allbills").append(bill);
-                
-                bill.find(".col-6").attr("contenteditable", true);
-                bill.find(".col-2").attr("contenteditable", true);
-
-
-                bill.find(".rounded").keypress(function(event) {
-                    if (event.keyCode === 13) {
-                        event.preventDefault();
-                        $(this).blur();
-                        // 
-                        $.ajax({
-                           
-                        })
-                    }
-                });
-
-                bill.find(".btn").click(function(event) {
-                    event.preventDefault();
-
-                    $.ajax({
-                        beforeSend: setCsrfToken,
-                        type: $(this).parent().attr("method"),
-                        url: $(this).parent().attr("action"),
-                        data: {
-                            "bill_id": $(this).siblings().val(),
-                        },
-                        success: function(response) {
-                            console.log(response);
-                            bill.find("#formDelete").addClass("copy-me");
-                            bill.find("#onerow").addClass("copy-me");
-                        },
-                        error: function(response) {
-                            console.log(response);
-                        }
-                    });
-                })
-
+                populate(response);
             },
             error: function(response) {
                 console.log("error in ajax");
